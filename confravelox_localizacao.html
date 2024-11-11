@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação de Localização - Evento</title>
+</head>
+<body>
+    <h1>Verifique sua Localização</h1>
+    <p>Por favor, permita o acesso à sua localização para confirmar se você está no local do evento.</p>
+
+    <script>
+        // Coordenadas do evento em Maringá - R. Paranaguá, 78, Zona 7
+        const eventoLatitude = -23.426314;
+        const eventoLongitude = -51.938849;
+        const distanciaPermitida = 1;  // Distância permitida em quilômetros (aproximadamente 1 km)
+
+        // Função para calcular a distância entre dois pontos (utilizando a fórmula Haversine)
+        function calcularDistancia(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Raio da Terra em km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c; // Distância em quilômetros
+        }
+
+        // Função para verificar a localização do usuário
+        function verificarLocalizacao() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const userLat = position.coords.latitude;
+                    const userLon = position.coords.longitude;
+
+                    // Calcular a distância entre a localização do usuário e o evento
+                    const distancia = calcularDistancia(userLat, userLon, eventoLatitude, eventoLongitude);
+
+                    // Se a distância for menor ou igual à distância permitida
+                    if (distancia <= distanciaPermitida) {
+                        // Redireciona para o formulário se estiver dentro do local permitido
+                        window.location.href = "https://docs.google.com/forms/d/1OLcHnmzjYmhhBZFOVWvHnXydwHyiLnYPh5R08xjTXQ4/edit";  // Substitua pelo link do seu formulário
+                    } else {
+                        alert("Você não está no local do evento.");
+                    }
+                }, function(error) {
+                    alert("Erro ao acessar a localização. Por favor, permita o acesso à localização.");
+                });
+            } else {
+                alert("Geolocalização não é suportada no seu navegador.");
+            }
+        }
+
+        // Chama a função de verificação assim que a página carregar
+        window.onload = verificarLocalizacao;
+    </script>
+</body>
+</html>
